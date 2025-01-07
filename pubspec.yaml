@@ -13,6 +13,8 @@ dependencies:
   http: ^1.2.2
   oauth2: ^2.0.3
   url_launcher: ^6.3.1
+  window_to_front:
+    path: ../window_to_front
 
 dev_dependencies:
   flutter_test:
