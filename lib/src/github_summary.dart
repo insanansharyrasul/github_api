@@ -20,7 +20,8 @@ class _GithubSummaryState extends State<GithubSummary> {
         NavigationRail(
           onDestinationSelected: (index) {
             setState(() {
-            _selectedIndex = index;
+              _selectedIndex = index;
+            });
           },
           labelType: NavigationRailLabelType.selected,
           selectedIndex: _selectedIndex,
@@ -49,6 +50,7 @@ class _GithubSummaryState extends State<GithubSummary> {
             children: [
               RepositoriesList(gitHub: widget.gitHub),
               AssignedIssues(gitHub: widget.gitHub),
+              PullRequestList(gitHub: widget.gitHub),
             ],
           ),
         )
@@ -126,5 +128,115 @@ Future<void> _launchUrl(State state, String url) async {
         ),
       );
     }
+  }
+}
+
+class AssignedIssues extends StatefulWidget {
+  final GitHub gitHub;
+  const AssignedIssues({required this.gitHub, super.key});
+
+  @override
+  State<AssignedIssues> createState() => _AssignedIssuesState();
+}
+
+class _AssignedIssuesState extends State<AssignedIssues> {
+  @override
+  void initState() {
+    super.initState();
+    _assignedIssues = widget.gitHub.issues.listByUser().toList();
+  }
+
+  late Future<List<Issue>> _assignedIssues;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<Issue>>(
+      future: _assignedIssues,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('${snapshot.error}'),
+          );
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        var assignedIssues = snapshot.data;
+        return ListView.builder(
+          primary: false,
+          itemBuilder: (context, index) {
+            var assignedIssue = assignedIssues[index];
+            return ListTile(
+              title: Text(assignedIssue.title),
+              subtitle: Text(
+                '${_nameWithOwner(assignedIssue)} '
+                'Issue #${assignedIssue.number} '
+                'opened by ${assignedIssue.user?.login ?? ''}',
+              ),
+              onTap: () => _launchUrl(this, assignedIssue.htmlUrl),
+            );
+          },
+          itemCount: assignedIssues!.length,
+        );
+      },
+    );
+  }
+
+  String _nameWithOwner(Issue assignedIssue) {
+    final endIndex = assignedIssue.url.lastIndexOf('/issues/');
+    return assignedIssue.url.substring(29, endIndex);
+  }
+}
+
+class PullRequestList extends StatefulWidget {
+  final GitHub gitHub;
+  const PullRequestList({super.key, required this.gitHub});
+
+  @override
+  State<PullRequestList> createState() => PullRequestListState();
+}
+
+class PullRequestListState extends State<PullRequestList> {
+  @override
+  void initState() {
+    super.initState();
+    _pullRequests = widget.gitHub.pullRequests
+        .list(RepositorySlug('flutter', 'flutter'))
+        .toList();
+  }
+
+  late Future<List<PullRequest>> _pullRequests;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<PullRequest>>(
+      future: _pullRequests,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('${snapshot.hasError}'));
+        }
+        if (!snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+        }
+        var pullRequests = snapshot.data;
+        return ListView.builder(
+          itemBuilder: (context, index) {
+            var pullRequest = pullRequests[index];
+            return ListTile(
+              title: Text(pullRequest.title ?? ''),
+              subtitle: Text(
+                'flutter/flutter '
+                'PR #${pullRequest.number}'
+                'opened by ${pullRequest.user?.login ?? ''}'
+                '(${pullRequest.state?.toLowerCase() ?? ''})',
+              ),
+              onTap: () => _launchUrl(this, pullRequest.htmlUrl ?? ''),
+            );
+          },
+          primary: false,
+          itemCount: pullRequests!.length,
+        );
+      },
+    );
   }
 }

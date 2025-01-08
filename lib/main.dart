@@ -14,7 +14,14 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: MyHomePage(title: 'Github Client'));
+    return MaterialApp(
+      home: MyHomePage(title: 'Github Client'),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        useMaterial3: true,
+      ),
+    );
   }
 }
 
@@ -27,17 +34,14 @@ class MyHomePage extends StatelessWidget {
     return GithubLoginWidget(
       builder: (context, httpClient) {
         WindowToFront.activate();
-        return FutureBuilder<CurrentUser>(
-          future: viewerDetail(httpClient.credentials.accessToken),
-          builder: (context, snapshot) {
-            return Scaffold(
-                appBar: AppBar(
-                  title: Text(title),
-                  elevation: 2,
-                ),
-                body: GithubSummary(
-                    github: _getGitHub(httpClient.credentials.accessToken)));
-          },
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(title),
+            elevation: 2,
+          ),
+          body: GithubSummary(
+            gitHub: _getGitHub(httpClient.credentials.accessToken),
+          ),
         );
       },
       githubClientId: githubClientId,
@@ -49,9 +53,4 @@ class MyHomePage extends StatelessWidget {
 
 GitHub _getGitHub(String accessToken) {
   return GitHub(auth: Authentication.withToken(accessToken));
-}
-
-Future<CurrentUser> viewerDetail(String accessToken) async {
-  final github = GitHub(auth: Authentication.withToken(accessToken));
-  return github.users.getCurrentUser();
 }
