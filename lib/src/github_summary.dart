@@ -19,6 +19,7 @@ class _GithubSummaryState extends State<GithubSummary> {
       children: [
         NavigationRail(
           onDestinationSelected: (index) {
+            setState(() {
             _selectedIndex = index;
           },
           labelType: NavigationRailLabelType.selected,
