@@ -5,8 +5,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class GithubSummary extends StatefulWidget {
-  final GitHub github;
-  const GithubSummary({super.key, required this.github});
+  final GitHub gitHub;
+  const GithubSummary({super.key, required this.gitHub});
 
   @override
   State<GithubSummary> createState() => _GithubSummaryState();
@@ -47,7 +47,8 @@ class _GithubSummaryState extends State<GithubSummary> {
           child: IndexedStack(
             index: _selectedIndex,
             children: [
-              RepositoriesList(gitHub: widget.github),
+              RepositoriesList(gitHub: widget.gitHub),
+              AssignedIssues(gitHub: widget.gitHub),
             ],
           ),
         )
