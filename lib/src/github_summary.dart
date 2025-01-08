@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:github/github.dart';
 import 'package:fluttericon/octicons_icons.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class GithubSummary extends StatefulWidget {
